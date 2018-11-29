@@ -7,10 +7,6 @@ public class PerchSaveComponent extends SaveComponent {
     public boolean hasSlots;
     public Slot[] slots = new Slot[0];
 
-    public PerchSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.hasSlots = dis.readBoolean();

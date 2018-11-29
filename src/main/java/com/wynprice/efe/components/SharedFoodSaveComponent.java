@@ -7,12 +7,13 @@ public class SharedFoodSaveComponent extends SaveComponent {
 
     private int remaningPortions;
 
-    public SharedFoodSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.remaningPortions = dis.readInt();
+    }
+
+    @Override
+    public boolean isValid() {
+        return sharedFoods.contains(this.blueprintID);
     }
 }

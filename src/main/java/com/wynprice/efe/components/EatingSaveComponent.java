@@ -8,10 +8,6 @@ public class EatingSaveComponent extends SaveComponent {
     public float hungerPoints;
     public String[] dietList = new String[0];
 
-    public EatingSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.hungerPoints = dis.readFloat();

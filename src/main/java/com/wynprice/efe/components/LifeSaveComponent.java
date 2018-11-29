@@ -5,8 +5,6 @@ import java.io.IOException;
 
 public class LifeSaveComponent extends SaveComponent {
 
-    private transient final boolean animal;
-
     public float enviromentSatisfaction;
     public float wellBeing;
     public float health;
@@ -21,11 +19,6 @@ public class LifeSaveComponent extends SaveComponent {
     public boolean evolutionCompleate;
     public int childSpeciesID;
 
-    public LifeSaveComponent(int blueprintID, int componentID) {
-        super(componentID);
-        this.animal = animalIDs.contains(blueprintID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.enviromentSatisfaction = dis.readFloat();
@@ -34,7 +27,7 @@ public class LifeSaveComponent extends SaveComponent {
         this.age = dis.readFloat();
         this.damagePoints = dis.readShort();
         this.lifeExpectancy = dis.readFloat();
-        if(this.animal) {
+        if(animalIDs.contains(this.blueprintID)) {
             this.sufferingDisease = dis.readBoolean();
             this.diseaseDamage = dis.readFloat();
         }

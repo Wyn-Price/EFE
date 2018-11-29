@@ -13,21 +13,17 @@ public class SaveComponent {
     public static List<Integer> animalIDs = Arrays.asList(1, 8, 12, 14, 15, 23, 38, 41, 49, 50, 52, 55, 56, 63, 64, 65, 72, 73, 74, 75, 76, 78, 79, 84, 89, 92, 99, 145, 161);
     public static List<Integer> sharedFoods = Arrays.asList(104, 139, 140);
 
-    public static String[] componentToName = {"transform", "mesh", "material", "sound", "name", "info", "life", "animation",
-            "particles", "healer", "spreader", "movement", "ai", "eating", "food", "fruiter", "growth", "lily", "random_sounder",
-            "flee", "fruit_fall", "decay", "build", "builder", "hive", "perch", "beaver", "equip", "wood", "sleep", "charge",
-            "panic", "hunt", "fight", "drop", "item", "nesting", "decompose", "percher", "flinging", "cling", "tree_swing",
-            "hostile", "bee", "fish_hunt", "peacock", "sound_looper", "sun_facer"};
-
-    private final String name;
+    public String componentName;
+    public int blueprintID;
 
     public SavedTrait[] traits = new SavedTrait[0];
 
-    public SaveComponent(int componentID) {
-        this.name = componentToName[componentID];
+    public void read(DataInputStream dis) throws IOException {
     }
 
-    public void read(DataInputStream dis) throws IOException {
+    //gets called before #read. Should only be used to determine if this is valid based on the blueprintID
+    public boolean isValid() {
+        return true;
     }
 
     public static void init() {
@@ -36,45 +32,12 @@ public class SaveComponent {
         componentID2componentFactory.put(1, MeshSaveComponent::new);
         componentID2componentFactory.put(4, NameSaveComponent::new);
         componentID2componentFactory.put(5, InfoSaveComponent::new);
-        componentID2componentFactory.put(6, new ComponentFactory() {
-
-            @Override
-            public SaveComponent create(int blueprintID, int componentID) {
-                return new LifeSaveComponent(blueprintID, componentID);
-            }
-
-            @Override
-            public SaveComponent create(int id) {
-                return null;
-            }
-        });
+        componentID2componentFactory.put(6, LifeSaveComponent::new);
         componentID2componentFactory.put(13, EatingSaveComponent::new);
-        componentID2componentFactory.put(14, new ComponentFactory() {
-
-            @Override
-            public SaveComponent create(int blueprintID, int componentID) {
-                return sharedFoods.contains(blueprintID) ? new SharedFoodSaveComponent(componentID) : null;
-            }
-
-            @Override
-            public SaveComponent create(int id) {
-                return null;
-            }
-        });
+        componentID2componentFactory.put(14, SharedFoodSaveComponent::new);
         componentID2componentFactory.put(15, FruiterSaveComponent::new);
         componentID2componentFactory.put(16, GrowthSaveComponent::new);
-        componentID2componentFactory.put(19, new ComponentFactory() {
-
-            @Override
-            public SaveComponent create(int blueprintID, int componentID) {
-                return blueprintID == 12 ? new ShellHideComponent(componentID) : null; //If its the turtle
-            }
-
-            @Override
-            public SaveComponent create(int id) {
-                return null;
-            }
-        });
+        componentID2componentFactory.put(19, ShellHideComponent::new);
         componentID2componentFactory.put(21, DecaySaveComponent::new);
         componentID2componentFactory.put(22, BuildSaveComponent::new);
         componentID2componentFactory.put(24, HiveSaveComponent::new);
@@ -246,10 +209,6 @@ public class SaveComponent {
     }
 
     public interface ComponentFactory {
-        default SaveComponent create(int blueprintID, int componentID) {
-            return this.create(componentID);
-        }
-
-        SaveComponent create(int id);
+        SaveComponent create();
     }
 }

@@ -6,9 +6,6 @@ import java.io.IOException;
 public class SleepSaveComponent extends SaveComponent {
     public boolean asleep;
 
-    public SleepSaveComponent(int componentID) {
-        super(componentID);
-    }
 
     @Override
     public void read(DataInputStream dis) throws IOException {

@@ -10,10 +10,6 @@ public class GrowthSaveComponent extends SaveComponent {
     public float totalStageTime;
     public float currentStateTime;
 
-    public GrowthSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.fullyGrown = dis.readBoolean();

@@ -10,10 +10,6 @@ public class InfoSaveComponent extends SaveComponent {
 
     public int parent;
 
-    public InfoSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.posX = dis.readFloat();

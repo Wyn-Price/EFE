@@ -7,6 +7,7 @@ public class Entity {
     public boolean isDead;
 
     public int blueprintID;
+    public String blueprintName;
     public boolean isStatic;
 
     public int id;

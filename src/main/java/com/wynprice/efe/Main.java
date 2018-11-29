@@ -9,10 +9,14 @@ import joptsimple.OptionSpec;
 import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main {
+
     public static void main(String[] args) {
 
         SaveComponent.init();
@@ -26,8 +30,7 @@ public class Main {
         OptionSpec<Path> output = parser.accepts("output", "The location of the ouptut file").withRequiredArg().withValuesConvertedBy(new PathConverter());
         OptionSpec<Void> help = parser.accepts("help", "shows the help screen").forHelp();
 
-        OptionSet set = parser.parse("--help");
-
+        OptionSet set = parser.parse("--input", "C:\\Users\\Wyn Price\\Desktop\\Equilinox_0_Saves\\Equilinox_0-0-Save_1.dat", "--output", "C:\\Users\\Wyn Price\\Desktop\\Equilinox_0_Saves\\ttt.json");
 
 
         if(set.has(help)) {

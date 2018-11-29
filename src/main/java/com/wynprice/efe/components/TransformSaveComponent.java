@@ -12,10 +12,6 @@ public class TransformSaveComponent extends SaveComponent {
     public float rotY;
     public float rotZ;
 
-    public TransformSaveComponent(int componentID) {
-        super(componentID);
-    }
-
     @Override
     public void read(DataInputStream dis) throws IOException {
         this.posX = dis.readFloat();

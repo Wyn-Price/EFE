@@ -1,0 +1,4 @@
+0 -> Unchecked Counter
+1 -> Checked Counter
+2 -> Happy Entity
+3 -> Full Comparator

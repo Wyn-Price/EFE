@@ -9,6 +9,7 @@ public class Task {
     public static Map<Integer, List<Integer>> taskToRequirementType = new HashMap<>();
 
     public int id;
+    public String name;
     public boolean repeated;
     public boolean autoCollect;
     public boolean notifyCollect;
@@ -77,6 +78,7 @@ public class Task {
 
     public static class TaskRequ {
         public int id;
+        public String typeName;
         public int count;
     }
 

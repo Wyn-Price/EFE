@@ -97,6 +97,7 @@ public class SavedInfomation {
             entity.isDead = next == -1;
             if(!entity.isDead) {
                 entity.blueprintID = next;
+                entity.blueprintName = ObjectNames.BLUEPRINTS.getName(next);
                 entity.isStatic = dis.readBoolean();
                 entity.id = dis.readInt();
 
@@ -119,8 +120,10 @@ public class SavedInfomation {
                     }
                     SaveComponent.ComponentFactory factory = SaveComponent.componentID2componentFactory.get(comp);
                     if(factory != null) {
-                        SaveComponent saveComponent = factory.create(entity.blueprintID, comp);
-                        if(saveComponent != null) {
+                        SaveComponent saveComponent = factory.create();
+                        saveComponent.blueprintID = entity.blueprintID;
+                        saveComponent.componentName = ObjectNames.COMPONENTS.getName(saveComponent.blueprintID);
+                        if(saveComponent.isValid()) {
                             saveComponent.read(dis);
                             saveComponent.traits = savedTraits.toArray(new SavedTrait[0]);
                             componentList.add(saveComponent);
@@ -152,6 +155,7 @@ public class SavedInfomation {
         for (int i = 0; i < taskSize; i++) {
             Task task = new Task();
             task.id = dis.readInt();
+            task.name = ObjectNames.TASKS.getName(task.id);
             if(Task.repeatedTasks.contains(task.id)) {
                 task.repeated = true;
                 task.autoCollect = dis.readBoolean();
@@ -168,6 +172,7 @@ public class SavedInfomation {
                         if(reqt != 0) { //0 is the only requirement that dosnt need saving
                             Task.TaskRequ ttr = new Task.TaskRequ();
                             ttr.id = reqt;
+                            ttr.typeName = ObjectNames.TASKREQUIREMENTS.getName(ttr.id);
                             ttr.count = dis.readInt();
                             taskRequs.add(ttr);
                         }
