@@ -30,8 +30,7 @@ public class Main {
         OptionSpec<Path> output = parser.accepts("output", "The location of the ouptut file").withRequiredArg().withValuesConvertedBy(new PathConverter());
         OptionSpec<Void> help = parser.accepts("help", "shows the help screen").forHelp();
 
-        OptionSet set = parser.parse("--input", "C:\\Users\\Wyn Price\\Desktop\\Equilinox_0_Saves\\Equilinox_0-0-Save_1.dat", "--output", "C:\\Users\\Wyn Price\\Desktop\\Equilinox_0_Saves\\ttt.json");
-
+        OptionSet set = parser.parse(args);
 
         if(set.has(help)) {
             try {
