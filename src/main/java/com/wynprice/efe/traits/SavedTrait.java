@@ -1,26 +1,31 @@
 package com.wynprice.efe.traits;
 
+import com.google.gson.*;
+
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class SavedTrait {
 
-    public static Map<Integer, Function<String, SavedTrait>> mode2SavedTrait = new HashMap<>();
+    public static Map<Integer, Supplier<SavedTrait>> mode2SavedTrait = new HashMap<>();
     public static Map<Integer, Map<Integer, List<TraitType>>> blueprintId2ComponentId2TraitType = new HashMap<>();
 
-    private final String name;
-
-    public SavedTrait(String name) {
-        this.name = name;
-    }
+    public String name;
+    public int mode;
 
     public void read(DataInputStream dis) throws IOException {
     }
 
-    public static void init() {
+    public void write(DataOutputStream dos) throws IOException {
 
+    }
+
+    public static void init() {
         //Code generated code.
 
         //yikes
@@ -846,7 +851,12 @@ public class SavedTrait {
         }
 
         public SavedTrait create() {
-            return mode2SavedTrait.get(this.mode).apply(this.name);
+            SavedTrait trait = mode2SavedTrait.get(this.mode).get();
+
+            trait.name = this.name;
+            trait.mode = this.mode;
+
+            return trait;
         }
     }
 }

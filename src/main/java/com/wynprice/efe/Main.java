@@ -1,21 +1,35 @@
 package com.wynprice.efe;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonDeserializer;
 import com.wynprice.efe.components.SaveComponent;
 import com.wynprice.efe.traits.SavedTrait;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import joptsimple.util.EnumConverter;
 import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 
 public class Main {
+
+    public static Gson OUT_GSON = new GsonBuilder()
+            .registerTypeAdapter(SaveComponent.class, (JsonDeserializer<SaveComponent>)(json, type, context) -> {
+                SaveComponent comp = SaveComponent.componentID2componentFactory.get(json.getAsJsonObject().get("componentID").getAsInt()).get();
+                //A little hack to allow for me to deserialize an ambiguous class to an object
+                return new GsonBuilder().registerTypeAdapter(comp.getClass(), (InstanceCreator<SaveComponent>) t -> comp).create().fromJson(json, comp.getClass());
+            })
+            .registerTypeAdapter(SavedTrait.class, (JsonDeserializer<SavedTrait>)(json, type, context) -> {
+                SavedTrait trait = SavedTrait.mode2SavedTrait.get(json.getAsJsonObject().get("mode").getAsInt()).get();
+                //A little hack to allow for me to deserialize an ambiguous class to an object
+                return new GsonBuilder().registerTypeAdapter(trait.getClass(), (InstanceCreator<SavedTrait>) t -> trait).create().fromJson(json, trait.getClass());
+            })
+            .create();
 
     public static void main(String[] args) {
 
@@ -30,6 +44,11 @@ public class Main {
         OptionSpec<Path> output = parser.accepts("output", "The location of the ouptut file").withRequiredArg().withValuesConvertedBy(new PathConverter());
         OptionSpec<Void> help = parser.accepts("help", "shows the help screen").forHelp();
 
+        OptionSpec<Void> doForce = parser.accepts("force", "Forces the conversion to finish when things go wrong");
+
+        OptionSpec<DataType> inData = parser.accepts("intype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
+        OptionSpec<DataType> outData = parser.accepts("outtype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
+
         OptionSet set = parser.parse(args);
 
         if(set.has(help)) {
@@ -41,24 +60,53 @@ public class Main {
             return;
         }
 
-        if(set.has("--worldsave")) {
-            throw new IllegalArgumentException("not yet implimented"); //todo
-        }
+        boolean allowExceptions = !set.has(doForce);
+
+        SavedInfomation info = new SavedInfomation();
 
         try(DataInputStream dis = new DataInputStream(new FileInputStream(input.value(set).toFile()))) {
-            SavedInfomation info = new SavedInfomation();
-            info.readFrom(dis);
-
-            String out = new GsonBuilder().setPrettyPrinting().create().toJson(info);
-            try(FileOutputStream fos = new FileOutputStream(output.value(set).toFile())) {
-                for(char c : out.toCharArray()) {
-                    fos.write(c);
+            try {
+                if(inData.value(set) == DataType.SAVE) {
+                    info.readFromSave(dis);
+                } else {
+                    info = OUT_GSON.fromJson(new InputStreamReader(dis), SavedInfomation.class);
                 }
+            } catch (Exception e) {
+                if(allowExceptions) {
+                    throw e;
+                }
+                System.err.println("Error loading data from input. ");
+                e.printStackTrace();
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(output.value(set).toFile()))) {
+            try {
+                if(outData.value(set) == DataType.SAVE) {
+                    info.exportToFile(dos);
+                } else {
+                    String out = new GsonBuilder().setPrettyPrinting().create().toJson(info);
+                    for(char c : out.toCharArray()) {
+                        dos.write(c);
+                    }
+                }
+            } catch (Exception e) {
+                if(allowExceptions) {
+                    throw e;
+                }
+                System.err.println("Error loading data from input. ");
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public enum DataType {
+        SAVE, JSON
     }
 }

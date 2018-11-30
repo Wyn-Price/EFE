@@ -3,22 +3,29 @@ package com.wynprice.efe.components;
 import com.wynprice.efe.traits.SavedTrait;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class SaveComponent {
 
     public static Map<Integer, List<Integer>> blueprint2Components = new HashMap<>();
-    public static Map<Integer, ComponentFactory> componentID2componentFactory = new HashMap<>();
+    public static Map<Integer, Supplier<SaveComponent>> componentID2componentFactory = new HashMap<>();
     public static List<Integer> animalIDs = Arrays.asList(1, 8, 12, 14, 15, 23, 38, 41, 49, 50, 52, 55, 56, 63, 64, 65, 72, 73, 74, 75, 76, 78, 79, 84, 89, 92, 99, 145, 161);
     public static List<Integer> sharedFoods = Arrays.asList(104, 139, 140);
 
-    public String componentName;
-    public int blueprintID;
-
     public SavedTrait[] traits = new SavedTrait[0];
 
+    public String componentName;
+    public int blueprintID;
+    public int componentID;
+
+
     public void read(DataInputStream dis) throws IOException {
+    }
+
+    public void write(DataOutputStream dos) throws IOException {
     }
 
     //gets called before #read. Should only be used to determine if this is valid based on the blueprintID
@@ -206,9 +213,5 @@ public class SaveComponent {
             list.add(i);
         }
         blueprint2Components.put(id, list);
-    }
-
-    public interface ComponentFactory {
-        SaveComponent create();
     }
 }

@@ -4,11 +4,13 @@ import com.wynprice.efe.components.SaveComponent;
 import com.wynprice.efe.traits.SavedTrait;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class SavedInfomation {
     public boolean corrupt;
@@ -50,7 +52,7 @@ public class SavedInfomation {
 
     public Task[] tasks;
 
-    public void readFrom(DataInputStream dis) throws IOException {
+    public void readFromSave(DataInputStream dis) throws IOException {
         this.corrupt = dis.readBoolean();
 
         this.lastPlayed = dis.readLong();
@@ -105,6 +107,7 @@ public class SavedInfomation {
                 List<SaveComponent> componentList = new ArrayList<>();
                 List<Integer> components = SaveComponent.blueprint2Components.get(entity.blueprintID);
                 Map<Integer, List<SavedTrait.TraitType>> ci2tt = SavedTrait.blueprintId2ComponentId2TraitType.get(entity.blueprintID);
+
                 for (int comp : Objects.requireNonNull(components)) {
                     List<SavedTrait> savedTraits = new ArrayList<>();
 
@@ -118,11 +121,12 @@ public class SavedInfomation {
                             }
                         }
                     }
-                    SaveComponent.ComponentFactory factory = SaveComponent.componentID2componentFactory.get(comp);
+                    Supplier<SaveComponent> factory = SaveComponent.componentID2componentFactory.get(comp);
                     if(factory != null) {
-                        SaveComponent saveComponent = factory.create();
+                        SaveComponent saveComponent = factory.get();
                         saveComponent.blueprintID = entity.blueprintID;
-                        saveComponent.componentName = ObjectNames.COMPONENTS.getName(saveComponent.blueprintID);
+                        saveComponent.componentID = comp;
+                        saveComponent.componentName = ObjectNames.COMPONENTS.getName(saveComponent.componentID);
                         if(saveComponent.isValid()) {
                             saveComponent.read(dis);
                             saveComponent.traits = savedTraits.toArray(new SavedTrait[0]);
@@ -181,6 +185,88 @@ public class SavedInfomation {
                 task.taskRequs = taskRequs.toArray(new Task.TaskRequ[0]);
             }
             this.tasks[i] = task;
+        }
+    }
+
+    public void exportToFile(DataOutputStream dos) throws IOException {
+        dos.writeBoolean(this.corrupt);
+
+        dos.writeLong(this.lastPlayed);
+        dos.writeInt(this.tasksCompleated);
+        dos.writeInt(this.population);
+        dos.writeInt(this.dp);
+
+        dos.writeFloat(this.cameraPosX);
+        dos.writeFloat(this.cameraPosY);
+        dos.writeFloat(this.cameraPosZ);
+
+        dos.writeFloat(this.cameraYaw);
+        dos.writeFloat(this.cameraPitch);
+
+        dos.writeInt(this.dp2);
+        dos.writeInt(this.dpPerMin);
+        dos.writeInt(this.day);
+        dos.writeFloat(this.time);
+
+        dos.writeInt(this.unlockedBlueprints.length);
+        for (int blueprint : this.unlockedBlueprints) {
+            dos.writeInt(blueprint);
+        }
+
+        dos.writeFloat(this.nextMutationTime);
+
+        dos.writeInt(this.evolveProcesses.length);
+        for (EvolveProcess process : this.evolveProcesses) {
+            dos.writeInt(process.childSpeciesID);
+            dos.writeFloat(process.evolvePoints);
+        }
+
+        dos.writeFloat(this.entityGridNextId);
+
+        dos.writeInt(this.entities.length);
+        for (Entity entity : this.entities) {
+            if(entity.isDead) {
+                dos.writeInt(-1);
+            } else {
+                dos.writeInt(entity.blueprintID);
+                dos.writeBoolean(entity.isStatic);
+                dos.writeInt(entity.id);
+
+                for (SaveComponent component : entity.components) {
+                    for (SavedTrait trait : component.traits) {
+                        trait.write(dos);
+                    }
+                    component.write(dos);
+                }
+            }
+        }
+
+        dos.writeInt(this.seed);
+        dos.writeFloat(this.smoothness);
+        dos.writeInt(this.vertexCount);
+        dos.writeFloat(this.waterHeight);
+
+        dos.writeInt(this.items.length);
+        for (Item item : this.items) {
+            dos.writeInt(item.blueprintID);
+            dos.writeInt(item.count);
+        }
+
+        dos.writeInt(this.tasks.length);
+        for (Task task : this.tasks) {
+            dos.writeInt(task.id);
+            if(Task.repeatedTasks.contains(task.id)) {
+                dos.writeBoolean(task.autoCollect);
+                dos.writeBoolean(task.notifyCollect);
+            }
+            dos.writeBoolean(task.pinned);
+            dos.writeBoolean(task.complete);
+            dos.writeBoolean(task.locked);
+            if(!task.complete) {
+                for (Task.TaskRequ requs : task.taskRequs) {
+                    dos.writeInt(requs.count);
+                }
+            }
         }
     }
 }

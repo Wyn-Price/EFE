@@ -1,6 +1,7 @@
 package com.wynprice.efe.components;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class LifeSaveComponent extends SaveComponent {
@@ -37,6 +38,27 @@ public class LifeSaveComponent extends SaveComponent {
         this.evolutionCompleate = dis.readBoolean();
         if(this.evolutionCompleate) {
             this.childSpeciesID = dis.readInt();
+        }
+    }
+
+    @Override
+    public void write(DataOutputStream dos) throws IOException {
+        dos.writeFloat(this.enviromentSatisfaction);
+        dos.writeFloat(this.wellBeing);
+        dos.writeFloat(this.health);
+        dos.writeFloat(this.age);
+        dos.writeShort(this.damagePoints);
+        dos.writeFloat(this.lifeExpectancy);
+        if(animalIDs.contains(this.blueprintID)) {
+            dos.writeBoolean(this.sufferingDisease);
+            dos.writeFloat(this.diseaseDamage);
+        }
+        dos.writeBoolean(this.breedingBoost);
+        dos.writeFloat(this.nextBreedTime);
+        dos.writeInt(this.generation);
+        dos.writeBoolean(this.evolutionCompleate);
+        if(this.evolutionCompleate) {
+            dos.writeInt(this.childSpeciesID);
         }
     }
 }
