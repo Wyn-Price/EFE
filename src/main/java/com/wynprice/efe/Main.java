@@ -12,6 +12,7 @@ import joptsimple.OptionSpec;
 import joptsimple.util.EnumConverter;
 import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
+import utils.FileUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -45,6 +46,7 @@ public class Main {
         OptionSpec<Void> help = parser.accepts("help", "shows the help screen").forHelp();
 
         OptionSpec<Void> doForce = parser.accepts("force", "Forces the conversion to finish when things go wrong");
+        OptionSpec<Void> compact = parser.accepts("compact", "If the output is a json, the json is not printed pretty. (Takes up less space)");
 
         OptionSpec<DataType> inData = parser.accepts("intype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
         OptionSpec<DataType> outData = parser.accepts("outtype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
@@ -54,6 +56,45 @@ public class Main {
         if(set.has(help)) {
             try {
                 parser.printHelpOn(System.out);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        DataType inDat = inData.value(set);
+        DataType outDat = outData.value(set);
+
+        Path inPath = input.value(set);
+        Path outPath = output.value(set);
+
+        if(inDat == null && inPath != null) {
+            String path = inPath.toString();
+            String type = path.substring(path.lastIndexOf('.'));
+
+            if(type.equals(".dat")) {
+                inDat = DataType.SAVE;
+            } else if(type.equals(".json")) {
+                inDat = DataType.JSON;
+            }
+        }
+
+        if(outDat == null && outPath != null) {
+            String path = outPath.toString();
+            String type = path.substring(path.lastIndexOf('.'));
+
+            if(type.equals(".dat")) {
+                outDat = DataType.SAVE;
+            } else if(type.equals(".json")) {
+                outDat = DataType.JSON;
+            }
+        }
+
+
+        if(!set.has(input) || !set.has(output) || inDat == null || outDat == null) {
+            System.err.println("Invalid arguments");
+            try {
+                parser.printHelpOn(System.err);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -75,7 +116,7 @@ public class Main {
                 if(allowExceptions) {
                     throw e;
                 }
-                System.err.println("Error loading data from input. ");
+                System.err.println("Error loading data from input.");
                 e.printStackTrace();
             }
 
@@ -88,7 +129,11 @@ public class Main {
                 if(outData.value(set) == DataType.SAVE) {
                     info.exportToFile(dos);
                 } else {
-                    String out = new GsonBuilder().setPrettyPrinting().create().toJson(info);
+                    GsonBuilder gsonbuilder = new GsonBuilder();
+                    if(!set.has(compact)) {
+                        gsonbuilder.setPrettyPrinting();
+                    }
+                    String out = gsonbuilder.create().toJson(info);
                     for(char c : out.toCharArray()) {
                         dos.write(c);
                     }
@@ -97,7 +142,7 @@ public class Main {
                 if(allowExceptions) {
                     throw e;
                 }
-                System.err.println("Error loading data from input. ");
+                System.err.println("Error loading data from output. ");
                 e.printStackTrace();
             }
         } catch (IOException e) {
