@@ -15,6 +15,6 @@ public class HiveSaveComponent extends SaveComponent {
 
     @Override
     public void write(DataOutputStream dos) throws IOException {
-        dos.writeFloat(this.honeyCount);
+        dos.writeInt(this.honeyCount);
     }
 }

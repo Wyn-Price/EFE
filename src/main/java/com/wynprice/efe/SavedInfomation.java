@@ -221,7 +221,7 @@ public class SavedInfomation {
             dos.writeFloat(process.evolvePoints);
         }
 
-        dos.writeFloat(this.entityGridNextId);
+        dos.writeInt(this.entityGridNextId);
 
         dos.writeInt(this.entities.length);
         for (Entity entity : this.entities) {
