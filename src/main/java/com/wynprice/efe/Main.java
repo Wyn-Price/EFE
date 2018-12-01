@@ -48,8 +48,8 @@ public class Main {
         OptionSpec<Void> doForce = parser.accepts("force", "Forces the conversion to finish when things go wrong");
         OptionSpec<Void> compact = parser.accepts("compact", "If the output is a json, the json is not printed pretty. (Takes up less space)");
 
-        OptionSpec<DataType> inData = parser.accepts("intype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
-        OptionSpec<DataType> outData = parser.accepts("outtype").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
+        OptionSpec<DataType> inData = parser.accepts("intype", "The input type. Will be automatically inferred from --input if left blank").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
+        OptionSpec<DataType> outData = parser.accepts("outtype", "The output type. Will be automatically inferred from --output if left blank").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
 
         OptionSet set = parser.parse(args);
 
@@ -72,10 +72,15 @@ public class Main {
             String path = inPath.toString();
             String type = path.substring(path.lastIndexOf('.'));
 
-            if(type.equals(".dat")) {
-                inDat = DataType.SAVE;
-            } else if(type.equals(".json")) {
-                inDat = DataType.JSON;
+            switch (type) {
+                case ".dat":
+                    inDat = DataType.SAVE;
+                    break;
+                case ".json":
+                    inDat = DataType.JSON;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Could not infer data type from " + type);
             }
         }
 
@@ -83,15 +88,20 @@ public class Main {
             String path = outPath.toString();
             String type = path.substring(path.lastIndexOf('.'));
 
-            if(type.equals(".dat")) {
-                outDat = DataType.SAVE;
-            } else if(type.equals(".json")) {
-                outDat = DataType.JSON;
+            switch (type) {
+                case ".dat":
+                    outDat = DataType.SAVE;
+                    break;
+                case ".json":
+                    outDat = DataType.JSON;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Could not infer data type from " + type);
             }
         }
 
 
-        if(!set.has(input) || !set.has(output) || inDat == null || outDat == null) {
+        if(inPath == null || outPath == null) {
             System.err.println("Invalid arguments");
             try {
                 parser.printHelpOn(System.err);
@@ -107,7 +117,7 @@ public class Main {
 
         try(DataInputStream dis = new DataInputStream(new FileInputStream(input.value(set).toFile()))) {
             try {
-                if(inData.value(set) == DataType.SAVE) {
+                if(inDat == DataType.SAVE) {
                     info.readFromSave(dis);
                 } else {
                     info = OUT_GSON.fromJson(new InputStreamReader(dis), SavedInfomation.class);
@@ -126,7 +136,7 @@ public class Main {
 
         try(DataOutputStream dos = new DataOutputStream(new FileOutputStream(output.value(set).toFile()))) {
             try {
-                if(outData.value(set) == DataType.SAVE) {
+                if(outDat == DataType.SAVE) {
                     info.exportToFile(dos);
                 } else {
                     GsonBuilder gsonbuilder = new GsonBuilder();
