@@ -12,7 +12,6 @@ import joptsimple.OptionSpec;
 import joptsimple.util.EnumConverter;
 import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
-import utils.FileUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -115,7 +114,17 @@ public class Main {
 
         SavedInfomation info = new SavedInfomation();
 
-        try(DataInputStream dis = new DataInputStream(new FileInputStream(input.value(set).toFile()))) {
+        File toFile = input.value(set).toFile();
+        try {
+            if(!toFile.exists() && !toFile.createNewFile()) {
+                throw new FileNotFoundException("Unable to create file");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        try(DataInputStream dis = new DataInputStream(new FileInputStream(toFile))) {
             try {
                 if(inDat == DataType.SAVE) {
                     info.readFromSave(dis);
