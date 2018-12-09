@@ -2,7 +2,7 @@
 
 ## Installation
 
-Download the latest version [here](https://github.com/Wyn-Price/EFE/releases)
+Download the latest version [here](https://github.com/Wyn-Price/EFE/releases/latest)
 
 ## Basic usage
 If you have any issue or question regarding basic usages, please look at the "Help" section at the bottom of this document.
