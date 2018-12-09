@@ -15,6 +15,7 @@ import joptsimple.util.PathProperties;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class Main {
 
@@ -40,12 +41,12 @@ public class Main {
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
 
-        OptionSpec<Path> input = parser.accepts("input", "The location of the input file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
-        OptionSpec<Path> output = parser.accepts("output", "The location of the ouptut file").withRequiredArg().withValuesConvertedBy(new PathConverter());
-        OptionSpec<Void> help = parser.accepts("help", "shows the help screen").forHelp();
+        OptionSpec<Path> input = parser.acceptsAll(Arrays.asList("i", "input"), "The location of the input file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
+        OptionSpec<Path> output = parser.acceptsAll(Arrays.asList("o", "output"), "The location of the ouptut file").withRequiredArg().withValuesConvertedBy(new PathConverter());
+        OptionSpec<Void> help = parser.acceptsAll(Arrays.asList("h", "help"), "shows the help screen").forHelp();
 
-        OptionSpec<Void> doForce = parser.accepts("force", "Forces the conversion to finish when things go wrong");
-        OptionSpec<Void> compact = parser.accepts("compact", "If the output is a json, the json is not printed pretty. (Takes up less space)");
+        OptionSpec<Void> doForce = parser.acceptsAll(Arrays.asList("f", "force"), "Forces the conversion to finish when things go wrong");
+        OptionSpec<Void> compact = parser.acceptsAll(Arrays.asList("c", "compact"), "If the output is a json, the json is not printed pretty. (Takes up less space)");
 
         OptionSpec<DataType> inData = parser.accepts("intype", "The input type. Will be automatically inferred from --input if left blank").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
         OptionSpec<DataType> outData = parser.accepts("outtype", "The output type. Will be automatically inferred from --output if left blank").withRequiredArg().withValuesConvertedBy(new EnumConverter<DataType>(DataType.class){});
