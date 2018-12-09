@@ -10,16 +10,15 @@ public class ShellHideComponent extends SaveComponent {
 
     @Override
     public void read(DataInputStream dis) throws IOException {
-        this.hidden = dis.readBoolean();
+        if(this.blueprintID == 12) {
+            this.hidden = dis.readBoolean();
+        }
     }
 
     @Override
     public void write(DataOutputStream dos) throws IOException {
-        dos.writeBoolean(this.hidden);
-    }
-
-    @Override
-    public boolean isValid() {
-        return this.blueprintID == 12;
+        if(this.blueprintID == 12) {
+            dos.writeBoolean(this.hidden);
+        }
     }
 }

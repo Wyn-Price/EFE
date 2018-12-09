@@ -10,16 +10,15 @@ public class SharedFoodSaveComponent extends SaveComponent {
 
     @Override
     public void read(DataInputStream dis) throws IOException {
-        this.remaningPortions = dis.readInt();
+        if(sharedFoods.contains(this.blueprintID)) {
+            this.remaningPortions = dis.readInt();
+        }
     }
 
     @Override
     public void write(DataOutputStream dos) throws IOException {
-        dos.writeInt(this.remaningPortions);
-    }
-
-    @Override
-    public boolean isValid() {
-        return sharedFoods.contains(this.blueprintID);
+        if(sharedFoods.contains(this.blueprintID)) {
+            dos.writeInt(this.remaningPortions);
+        }
     }
 }

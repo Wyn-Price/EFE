@@ -121,18 +121,15 @@ public class SavedInfomation {
                             }
                         }
                     }
-                    Supplier<SaveComponent> factory = SaveComponent.componentID2componentFactory.get(comp);
-                    if(factory != null) {
-                        SaveComponent saveComponent = factory.get();
-                        saveComponent.blueprintID = entity.blueprintID;
-                        saveComponent.componentID = comp;
-                        saveComponent.componentName = ObjectNames.COMPONENTS.getName(saveComponent.componentID);
-                        if(saveComponent.isValid()) {
-                            saveComponent.read(dis);
-                            saveComponent.traits = savedTraits.toArray(new SavedTrait[0]);
-                            componentList.add(saveComponent);
-                        }
-                    }
+                    Supplier<SaveComponent> factory = SaveComponent.componentID2componentFactory.getOrDefault(comp, SaveComponent::new);
+                    SaveComponent saveComponent = factory.get();
+                    saveComponent.blueprintID = entity.blueprintID;
+                    saveComponent.componentID = comp;
+                    saveComponent.componentName = ObjectNames.COMPONENTS.getName(saveComponent.componentID);
+
+                    saveComponent.read(dis);
+                    saveComponent.traits = savedTraits.toArray(new SavedTrait[0]);
+                    componentList.add(saveComponent);
                 }
                 entity.components = componentList.toArray(new SaveComponent[0]);
             }

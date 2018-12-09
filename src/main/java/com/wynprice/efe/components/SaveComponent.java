@@ -28,11 +28,6 @@ public class SaveComponent {
     public void write(DataOutputStream dos) throws IOException {
     }
 
-    //gets called before #read. Should only be used to determine if this is valid based on the blueprintID
-    public boolean isValid() {
-        return true;
-    }
-
     public static void init() {
 
         componentID2componentFactory.put(0, TransformSaveComponent::new);
