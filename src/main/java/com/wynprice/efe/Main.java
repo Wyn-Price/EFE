@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonDeserializer;
 import com.wynprice.efe.components.SaveComponent;
+import com.wynprice.efe.data.DataType;
 import com.wynprice.efe.traits.SavedTrait;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -72,15 +73,8 @@ public class Main {
             String path = inPath.toString();
             String type = path.substring(path.lastIndexOf('.'));
 
-            switch (type) {
-                case ".dat":
-                    inDat = DataType.SAVE;
-                    break;
-                case ".json":
-                    inDat = DataType.JSON;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Could not infer data type from " + type);
+            if((inDat = DataType.inferDataType(type)) == DataType.UNKNOWN) {
+                throw new IllegalArgumentException("Could not infer data type from " + type);
             }
         }
 
@@ -88,15 +82,8 @@ public class Main {
             String path = outPath.toString();
             String type = path.substring(path.lastIndexOf('.'));
 
-            switch (type) {
-                case ".dat":
-                    outDat = DataType.SAVE;
-                    break;
-                case ".json":
-                    outDat = DataType.JSON;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Could not infer data type from " + type);
+            if((outDat = DataType.inferDataType(type)) == DataType.UNKNOWN) {
+                throw new IllegalArgumentException("Could not infer data type from " + type);
             }
         }
 
@@ -169,9 +156,5 @@ public class Main {
             e.printStackTrace();
         }
 
-    }
-
-    public enum DataType {
-        SAVE, JSON
     }
 }
